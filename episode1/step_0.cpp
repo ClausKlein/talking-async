@@ -126,9 +126,12 @@ auto main(int argc, char* argv[]) -> int
     asio::io_context ctx;
 
     auto listen_endpoint =
-        *tcp::resolver(ctx).resolve(argv[1], argv[2], tcp::resolver::passive);
+        *tcp::resolver(ctx)
+             .resolve(argv[1], argv[2], tcp::resolver::passive)
+             .begin();
 
-    auto target_endpoint = *tcp::resolver(ctx).resolve(argv[3], argv[4]);
+    auto target_endpoint =
+        *tcp::resolver(ctx).resolve(argv[3], argv[4]).begin();
 
     tcp::acceptor acceptor(ctx, listen_endpoint);
 

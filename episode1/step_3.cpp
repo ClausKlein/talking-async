@@ -1,4 +1,5 @@
 #include <array>
+#include <chrono>
 #include <iostream>
 #include <memory>
 
@@ -18,7 +19,7 @@ constexpr auto use_nothrow_awaitable =
 
 struct proxy_state
 {
-  proxy_state(tcp::socket client)
+  explicit proxy_state(tcp::socket client)
       : client(std::move(client))
   {
   }
@@ -32,20 +33,22 @@ using proxy_state_ptr = std::shared_ptr<proxy_state>;
 
 awaitable<void> client_to_server(proxy_state_ptr state)
 {
-  std::array<char, 1024> data;
+  std::array<char, 1024> data {};
 
   for (;;) {
     state->deadline = std::max(state->deadline, steady_clock::now() + 5s);
 
     auto [e1, n1] = co_await state->client.async_read_some(
         buffer(data), use_nothrow_awaitable);
-    if (e1)
+    if (e1) {
       break;
+    }
 
     auto [e2, n2] = co_await async_write(
         state->server, buffer(data, n1), use_nothrow_awaitable);
-    if (e2)
+    if (e2) {
       break;
+    }
   }
 
   state->client.close();
@@ -54,20 +57,22 @@ awaitable<void> client_to_server(proxy_state_ptr state)
 
 awaitable<void> server_to_client(proxy_state_ptr state)
 {
-  std::array<char, 1024> data;
+  std::array<char, 1024> data {};
 
   for (;;) {
     state->deadline = std::max(state->deadline, steady_clock::now() + 5s);
 
     auto [e1, n1] = co_await state->server.async_read_some(
         buffer(data), use_nothrow_awaitable);
-    if (e1)
+    if (e1) {
       break;
+    }
 
     auto [e2, n2] = co_await async_write(
         state->client, buffer(data, n1), use_nothrow_awaitable);
-    if (e2)
+    if (e2) {
       break;
+    }
   }
 
   state->client.close();
@@ -108,8 +113,9 @@ awaitable<void> listen(tcp::acceptor& acceptor, tcp::endpoint target)
 {
   for (;;) {
     auto [e, client] = co_await acceptor.async_accept(use_nothrow_awaitable);
-    if (e)
+    if (e) {
       break;
+    }
 
     auto ex = client.get_executor();
     co_spawn(ex, proxy(std::move(client), target), detached);

@@ -13,7 +13,7 @@ using asio::ip::tcp;
 
 struct proxy_state
 {
-  proxy_state(tcp::socket client)
+  explicit proxy_state(tcp::socket client)
       : client(std::move(client))
   {
   }
@@ -27,7 +27,7 @@ using proxy_state_ptr = std::shared_ptr<proxy_state>;
 awaitable<void> client_to_server(proxy_state_ptr state)
 {
   try {
-    std::array<char, 1024> data;
+    std::array<char, 1024> data {};
 
     for (;;) {
       auto n =
@@ -44,7 +44,7 @@ awaitable<void> client_to_server(proxy_state_ptr state)
 awaitable<void> server_to_client(proxy_state_ptr state)
 {
   try {
-    std::array<char, 1024> data;
+    std::array<char, 1024> data {};
 
     for (;;) {
       auto n =

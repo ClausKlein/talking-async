@@ -8,4 +8,4 @@ DSYM:=$(SOURCE:.cpp=.dSYM)
 all: $(PROGRAMS)
 
 clean:
-	rm -rf $(PROGRAMS) $(DSYM)
+	rm -rf $(PROGRAMS) $(DSYM) *~

@@ -10,13 +10,13 @@ using asio::ip::tcp;
 class proxy : public std::enable_shared_from_this<proxy>
 {
 public:
-  proxy(tcp::socket client)
+  explicit proxy(tcp::socket client)
       : client_(std::move(client))
       , server_(client_.get_executor())
   {
   }
 
-  void connect_to_server(tcp::endpoint target)
+  void connect_to_server(const tcp::endpoint& target)
   {
     auto self = shared_from_this();
     server_.async_connect(target,
@@ -96,11 +96,11 @@ private:
 
   tcp::socket client_;
   tcp::socket server_;
-  std::array<char, 1024> data_from_client_;
-  std::array<char, 1024> data_from_server_;
+  std::array<char, 1024> data_from_client_ {};
+  std::array<char, 1024> data_from_server_ {};
 };
 
-void listen(tcp::acceptor& acceptor, tcp::endpoint target)
+void listen(tcp::acceptor& acceptor, const tcp::endpoint& target)
 {
   acceptor.async_accept(
       [&acceptor, target](std::error_code error, tcp::socket client)

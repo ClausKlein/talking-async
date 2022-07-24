@@ -1,4 +1,5 @@
 #include <array>
+#include <chrono>
 #include <iostream>
 #include <memory>
 
@@ -23,20 +24,22 @@ awaitable<void> transfer(tcp::socket& from,
                          tcp::socket& to,
                          steady_clock::time_point& deadline)
 {
-  std::array<char, 1024> data;
+  std::array<char, 1024> data {};
 
   for (;;) {
     deadline = std::max(deadline, steady_clock::now() + 5s);
 
     auto [e1, n1] =
         co_await from.async_read_some(buffer(data), use_nothrow_awaitable);
-    if (e1)
+    if (e1) {
       co_return;
+    }
 
     auto [e2, n2] =
         co_await async_write(to, buffer(data, n1), use_nothrow_awaitable);
-    if (e2)
+    if (e2) {
       co_return;
+    }
   }
 }
 
@@ -71,8 +74,9 @@ awaitable<void> listen(tcp::acceptor& acceptor, tcp::endpoint target)
 {
   for (;;) {
     auto [e, client] = co_await acceptor.async_accept(use_nothrow_awaitable);
-    if (e)
+    if (e) {
       break;
+    }
 
     auto ex = client.get_executor();
     co_spawn(ex, proxy(std::move(client), target), detached);

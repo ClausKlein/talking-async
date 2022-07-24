@@ -20,9 +20,9 @@ using namespace std::literals::chrono_literals;
 constexpr auto use_nothrow_awaitable =
     asio::experimental::as_tuple(asio::use_awaitable);
 
-awaitable<void> transfer(tcp::socket& from,
-                         tcp::socket& to,
-                         steady_clock::time_point& deadline)
+auto transfer(tcp::socket& from,
+              tcp::socket& to,
+              steady_clock::time_point& deadline) -> awaitable<void>
 {
   std::array<char, 1024> data {};
 
@@ -43,7 +43,7 @@ awaitable<void> transfer(tcp::socket& from,
   }
 }
 
-awaitable<void> watchdog(steady_clock::time_point& deadline)
+auto watchdog(steady_clock::time_point& deadline) -> awaitable<void>
 {
   asio::steady_timer timer(co_await this_coro::executor);
 
@@ -55,7 +55,7 @@ awaitable<void> watchdog(steady_clock::time_point& deadline)
   }
 }
 
-awaitable<void> proxy(tcp::socket client, tcp::endpoint target)
+auto proxy(tcp::socket client, tcp::endpoint target) -> awaitable<void>
 {
   tcp::socket server(client.get_executor());
   steady_clock::time_point client_to_server_deadline {};
@@ -70,7 +70,7 @@ awaitable<void> proxy(tcp::socket client, tcp::endpoint target)
   }
 }
 
-awaitable<void> listen(tcp::acceptor& acceptor, tcp::endpoint target)
+auto listen(tcp::acceptor& acceptor, tcp::endpoint target) -> awaitable<void>
 {
   for (;;) {
     auto [e, client] = co_await acceptor.async_accept(use_nothrow_awaitable);
@@ -83,7 +83,7 @@ awaitable<void> listen(tcp::acceptor& acceptor, tcp::endpoint target)
   }
 }
 
-int main(int argc, char* argv[])
+auto main(int argc, char* argv[]) -> int
 {
   try {
     if (argc != 5) {

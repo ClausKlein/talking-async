@@ -113,7 +113,7 @@ void listen(tcp::acceptor& acceptor, const tcp::endpoint& target)
       });
 }
 
-int main(int argc, char* argv[])
+auto main(int argc, char* argv[]) -> int
 {
   try {
     if (argc != 5) {

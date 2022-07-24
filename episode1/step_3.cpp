@@ -31,7 +31,7 @@ struct proxy_state
 
 using proxy_state_ptr = std::shared_ptr<proxy_state>;
 
-awaitable<void> client_to_server(proxy_state_ptr state)
+auto client_to_server(proxy_state_ptr state) -> awaitable<void>
 {
   std::array<char, 1024> data {};
 
@@ -55,7 +55,7 @@ awaitable<void> client_to_server(proxy_state_ptr state)
   state->server.close();
 }
 
-awaitable<void> server_to_client(proxy_state_ptr state)
+auto server_to_client(proxy_state_ptr state) -> awaitable<void>
 {
   std::array<char, 1024> data {};
 
@@ -79,7 +79,7 @@ awaitable<void> server_to_client(proxy_state_ptr state)
   state->server.close();
 }
 
-awaitable<void> watchdog(proxy_state_ptr state)
+auto watchdog(proxy_state_ptr state) -> awaitable<void>
 {
   asio::steady_timer timer(state->client.get_executor());
 
@@ -94,7 +94,7 @@ awaitable<void> watchdog(proxy_state_ptr state)
   state->server.close();
 }
 
-awaitable<void> proxy(tcp::socket client, tcp::endpoint target)
+auto proxy(tcp::socket client, tcp::endpoint target) -> awaitable<void>
 {
   auto state = std::make_shared<proxy_state>(std::move(client));
 
@@ -109,7 +109,7 @@ awaitable<void> proxy(tcp::socket client, tcp::endpoint target)
   }
 }
 
-awaitable<void> listen(tcp::acceptor& acceptor, tcp::endpoint target)
+auto listen(tcp::acceptor& acceptor, tcp::endpoint target) -> awaitable<void>
 {
   for (;;) {
     auto [e, client] = co_await acceptor.async_accept(use_nothrow_awaitable);
@@ -122,7 +122,7 @@ awaitable<void> listen(tcp::acceptor& acceptor, tcp::endpoint target)
   }
 }
 
-int main(int argc, char* argv[])
+auto main(int argc, char* argv[]) -> int
 {
   try {
     if (argc != 5) {
